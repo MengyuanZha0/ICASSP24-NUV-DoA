@@ -6,7 +6,7 @@ This repository contains the code for DOA (Direction of Arrival) estimation usin
 
 - [Introduction](#introduction)
 - [Data Generation](#data-generation)
-- [NUV-EM Algorithm](#vanilla-nuv-doa-algorithm)
+- [Vanilla NUV-DoA Algorithm](#vanilla-nuv-doa-algorithm)
 - [Window-sweeping Algorithm](#window-sweeping)
 - [Estimation](#estimation)
 
