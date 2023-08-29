@@ -3,14 +3,15 @@ import torch
 from math import e
 
 class DataGenerator:
-    def __init__(self, k, gap, sample, n, x_var, mean_c, r2):
-        self.k = k
-        self.gap = gap
-        self.sample = sample
-        self.n = n
-        self.x_var = x_var
-        self.mean_c = mean_c
-        self.r2 = r2
+    def __init__(self, k, gap, sample, n, x_var, mean_c, r2, l):
+        self.k = k                                                              # number of sources
+        self.gap = gap                                                          # minimum gap between each source directions
+        self.sample = sample                                                  
+        self.n = n                                                              # number of sensor arrays
+        self.x_var = x_var                                                      # variance of non-coherent Gaussian source signal
+        self.mean_c = mean_c                                                    # constant mean of non-coherent Gaussian source signal
+        self.r2 = r2                                                            # variance of complex AWGN
+        self.l = l                                                              # number of snapshots
 
     def doa_generator(self):
         """Generates k DOAs with a specified gap."""
@@ -63,13 +64,13 @@ def generate_experiment_data(generator):
             er2 = torch.tensor(np.random.normal(0, generator.r2 / 2, generator.n))
             y_train[j, t, :, 0] = STM_A[j].matmul(x_true[j, t, :, 0]) + er1 + er2 * 1j
             
-    return x_true, y_train
+    return x_dire, x_true, y_train
 
 
-# Constants
-k = 2
+# Initialization
+k = 1
 gap = 15
-sample = 100
+sample = 1
 n = 16
 x_var = 0.5
 mean_c = 2
@@ -77,6 +78,6 @@ r2 = 1e-1
 l = 100
 
 # Generate data
-generator = DataGenerator(k, gap, sample, n, x_var, mean_c, r2)
-x_true, y_train = generate_experiment_data(generator)
-
+generator = DataGenerator(k, gap, sample, n, x_var, mean_c, r2, l)
+x_dire, x_true, y_train = generate_experiment_data(generator)
+# print(x_dire)
