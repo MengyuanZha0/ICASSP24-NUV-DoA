@@ -6,8 +6,8 @@ This repository contains the code for DOA (Direction of Arrival) estimation usin
 
 - [Introduction](#introduction)
 - [Data Generation](#data-generation)
-- [Vanilla NUV-DoA Algorithm](#vanilla-nuv-doa-algorithm)
-- [Window-sweeping Algorithm](#window-sweeping)
+- [NUV-SSR Algorithm](#NUV-SSR)
+- [NUV-DoA Algorithm](#NUV-DoA)
 - [Estimation](#estimation)
 
 ## Introduction
@@ -23,16 +23,16 @@ Generating data for this experiment consists of the following steps:
 2. Generate noncoherent source signals.
 3. Define noise level, and generate the observations
 
-## vanilla NUV-DoA Algorithm
+## NUV-SSR
 
-This file presents the original NUV-DoA algorithm without implementing the high-resolution approach - window sweeping.
+This file presents the original NUV-SSR algorithm benchmark.
 
 ## Window-sweeping Implementation
 
-Window-sweeping version of NUV-DoA algorithm
+high-resolution implementation of NUV-SSR algorithm - NUV-DoA algorithm.
 
 ## Estimation and Interference Canceling
 
-The estimation code combines the data generation, NUV-DoA algorithm (vanilla or windowed) to estimate the DOA from the generated measurements. We also provides code for interference canceling when faced with multi-sources.
+The estimation code combines the data generation, NUV algorithm to estimate the DOA from the generated measurements. We also provides code for interference canceling when faced with multi-sources.
 
 
