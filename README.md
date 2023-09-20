@@ -8,6 +8,7 @@ This repository contains the code for DOA (Direction of Arrival) estimation usin
 - [Data Generation](#data-generation)
 - [NUV-SSR Algorithm](#NUV-SSR)
 - [NUV-DoA Algorithm](#NUV-DoA)
+- [L1-SVD Algorithm](#L1-SVD.mat)
 - [Estimation](#estimation)
 
 ## Introduction
@@ -27,9 +28,13 @@ Generating data for this experiment consists of the following steps:
 
 This file presents the original NUV-SSR algorithm benchmark.
 
-## Window-sweeping Implementation
+## NUV-DoA
 
 high-resolution implementation of NUV-SSR algorithm - NUV-DoA algorithm.
+
+## L1-SVD Algorithm
+
+Implementation of L1-SVD algorithm in MatLab.
 
 ## Estimation and Interference Canceling
 
