@@ -1,0 +1,60 @@
+function [ang_est, sp_val] = l1_SVD_DoA_est(Y_in,ULA_N,threshold,SOURCE_K, NGrid)
+% INPUTS:
+% Ry: the sample covariance estimate
+% ULA_N: the number of sensors in the array
+% noise_power: the variance of the noise
+% SOURCE_K: the number of sources
+% THETA_angles: the grid
+
+% OUTPUT:
+% ang_est: the DoA estimate 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ULA_steer_vec = @(x,N) exp(1j*pi*sin(deg2rad(x))*(0:1:N-1)).'; 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% The grid and dictionary for the compressed sensing method
+THETA_angles = linspace(-90, 90, NGrid);
+A_dic = zeros(ULA_N, NGrid);
+    
+    for i = 1:ULA_N
+        for s = 1:NGrid
+            x = -1j * (i-1) * pi * sin((s-1) * pi / (NGrid - 1) - pi / 2);
+            A_dic(i,s) = exp(x);
+        end
+    end
+% Calculate the \ell_2,1 SVD
+Y = transpose(squeeze(Y_in));
+[~,L,V] = svd(Y);
+Dr = [eye(rank(Y)) zeros(size(Y,1),size(Y,2) -rank(Y))];
+Ydr = Y*V*Dr.';
+disp(size(Ydr))
+% Y_rank = rank(Y, threshold * L(1,1)); % Determine the rank using threshold
+
+% Dr = [eye(Y_rank) zeros(Y_rank, size(Y,2) - Y_rank)];
+% disp(size(Dr))
+% Ydr = Y * V * Dr';
+
+% Solve SOCP using CVX
+     cvx_begin 
+         variable S_est_dr(NGrid,size(Ydr,1)) complex;
+         disp(size(S_est_dr))
+         minimize( sum(norms(S_est_dr.')) ); % this is the 2,1 norm of a matrix (mixed norm) % + 0.5*norm(y - A_dic*s_est,2) );
+         subject to
+             norm(Ydr - A_dic*S_est_dr,'fro') <= threshold;
+     cvx_end
+    
+% % Solve SOCP using CVX
+     % cvx_begin quiet
+     %     variable S_est_dr(NGrid,size(Y,1)) complex;
+     %     minimize ( threshold*sum(norms(S_est_dr.'))+0.5*square_pos(norm(Ydr - A_dic*S_est_dr,'fro')) );% this is the 2,1 norm of a matrix (mixed norm) % + 0.5*norm(y - A_dic*s_est,2) );
+     % cvx_end
+
+S_est = S_est_dr*Dr*V';
+Ps = sum(abs(S_est).^2,2);
+% figure(1);
+% plot(Ps);
+[sp_val, spa_ind] = maxk(Ps,SOURCE_K);
+ang_est = sort(THETA_angles(spa_ind))';
+
+end
+
+
