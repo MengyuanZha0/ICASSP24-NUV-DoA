@@ -8,6 +8,7 @@ This repository contains the code for DOA (Direction of Arrival) estimation usin
 - [Data Generation](#data-generation)
 - [NUV-SSR Algorithm](#NUV-SSR)
 - [NUV-DoA Algorithm](#NUV-DoA)
+- [MUSIC & Root-MUSIC Algorithm](#music)
 - [L1-SVD Algorithm](#L1-SVD.mat)
 - [Estimation](#estimation)
 
@@ -35,6 +36,10 @@ high-resolution implementation of NUV-SSR algorithm - NUV-DoA algorithm.
 ## L1-SVD Algorithm
 
 Implementation of L1-SVD algorithm in MatLab.
+
+## MUSIC & Root-MUSIC Algorithm
+
+Implementation of MUSIC & Root-MUSIC Algorithm.
 
 ## Estimation and Interference Canceling
 
