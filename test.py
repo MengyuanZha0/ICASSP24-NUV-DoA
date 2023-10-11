@@ -62,6 +62,26 @@ for r_tuning in r_t:
 SNR = 10*math.log10((x_var + mean_c) / r_2)
 print('SNR = {}'.format(SNR))
 
+#### plotting ####
+from scipy.signal import argrelextrema
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+# fig,axs = plt.subplots(179)
+
+
+p = 0
+
+fig,ax = plt.subplots(figsize=(5, 3))
+
+x_c = x_pred[p].cpu()
+y_c = np.linspace(-90, 90, len(x_c), endpoint=False)
+  # y_c = np.linspace(-0.5, 0.5, len(x_c), endpoint=False)
+ax.plot(y_c, x_c, marker = '*')
+
+# plt.plot(0, x_c[50], "o")
+ax.set_title('M = {}'.format(len(x_c) ))
+plt.savefig('plot/Vanilla_m=360_snr_high.eps', format='eps')
+
 
 
 ##########################################################
@@ -157,3 +177,26 @@ MSE_linear = math.sqrt(np.mean(MSE))
 print('averaged RMSE in linear = {}'.format(MSE_linear))
 SNR = 10*math.log10((0.5 + 4) / r2)
 print('SNR = {}'.format(SNR))
+
+#### plotting ####
+
+from scipy.signal import argrelextrema
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
+
+p = 0
+
+fig,ax = plt.subplots(figsize=(6, 3))
+
+  # x_c = xx_pred[p]
+  # axs = axs.ravel()
+x_c = x_pred[p].cpu()
+y_c = np.linspace(B1, B2, len(x_c), endpoint=False)
+  # y_c = np.linspace(-0.5, 0.5, len(x_c), endpoint=False)
+ax.plot(y_c, x_c, marker = '*')
+# plt.plot(0, x_c[50], "o")
+# ax.set_title('true doa = {}'.format(x_dire[p] ))
+  # argrelextrema(np.array(x_c), np.greater)
+print('true doa = {}'.format(x_dire[p]))
+print('predicted doa = {}'.format(theta[p]))
+print('σ = 3r2 = 30')
