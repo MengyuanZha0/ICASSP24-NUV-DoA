@@ -200,3 +200,80 @@ ax.plot(y_c, x_c, marker = '*')
 print('true doa = {}'.format(x_dire[p]))
 print('predicted doa = {}'.format(theta[p]))
 print('σ = 3r2 = 30')
+
+
+
+###############################################################################
+############# Hierarchical Approach for Multi-source Estimation ###############
+###############################################################################
+
+k = 2
+
+ss_model = Complex_SystemModel("Narrowband", n, k)
+
+estimator = Complex_NUVEstimator_k(ss_model)
+mm = 18000
+# baseline = Model_Based_methods(ss_model)
+vanilla = Vanilla_NUVEstimator(ss_model)           # we choose NUV-SSR as our baseline to cancel the interference from the observation 
+array = np.linspace(0, n, n, endpoint=False)
+
+print(y_train.shape)
+y_mean = torch.zeros(samples, n, 1, dtype = torch.cdouble).to('cuda')
+for i in range(samples):
+  for j in range(n):
+    for s in range(l):
+      y_mean[i, j, 0] += y_train[i, s, j, 0] / l
+
+
+from sklearn.metrics import mean_squared_error
+from itertools import permutations
+import gc
+
+#### prediction based on NUV-SSR (vanilla) methods ####
+
+doa_vanilla = [0] * samples
+doa_pred = [[0] * k] * samples
+resol = 0.05
+interf_const = 2.0
+MSE_vanilla_all = [0] * samples
+MSE_NUV = [0] * samples
+
+for i in range(samples):
+  print(i)
+  [_, _, doa_vanilla[i], iterations, deltas] = vanilla.predict(y_mean[i, :, 0], k, r=9, A = A_vanilla, max_iterations=9000,  convergence_threshold=4e-4)
+  print('NUV vanilla prediction = {}'.format(doa_vanilla[i]))
+  print('true direction = {}'.format(x_dire[i]))
+  RMSE_vanilla = [0] * k
+  B1 = [0] * k
+  B2 = [0] * k
+  for r in range(k):
+    RMSE_vanilla[r] = math.sqrt(estimator.PMSE([doa_vanilla[i][r]], [x_dire[i][r]]))
+    B1[r] = int(doa_vanilla[i][r] - 6 * RMSE_vanilla[r]) - 2
+    B2[r] = int(doa_vanilla[i][r] + 6 * RMSE_vanilla[r]) + 2
+
+  MSE_vanilla_all[i] = estimator.PMSE([doa_vanilla[i]], [x_dire[i]])
+  print('MSE of vanilla NUV prediction = {}'.format(MSE_vanilla_all[i]))   
+  print('B1 = {}'.format(B1))
+  print('B2 = {}'.format(B2))
+
+  for r in range(k):
+    interf_vec = ss_model.ULA_intervec(n, 0.01, 1, angles = doa_vanilla[i][1-r]).to('cuda')
+    y = y_mean[i, :, 0] - interf_const * interf_vec
+    # print(y)
+    [_, doa_nuv, _, iterations, deltas] = estimator.predict(y, resol = 0.05, k = 1, r=40, B1 = B1[r], B2 = B2[r], max_iterations=5000,  convergence_threshold=6e-4)
+    doa_pred[i][r] = doa_nuv
+    gc.collect()
+    torch.cuda.empty_cache()
+  print('NUV-EM prediction = {}'.format(doa_pred[i]))
+  MSE_NUV[i] = estimator.PMSE([doa_pred[i]], [x_dire[i]])
+  print(MSE_NUV[i])
+  print('---------------------------------------------------')
+
+MSE_NUV_dB = 10 * (math.log10(np.mean(MSE_NUV)))
+print('NUV-predicted averaged MSE in dB = {}'.format(MSE_NUV_dB))
+MSE_NUV_linear = math.sqrt(np.mean(MSE_NUV))
+print('NUV-predicted averaged RMSE in linear = {}'.format(MSE_NUV_linear))
+MSE_vanilla_dB = 10 * (math.log10(np.mean(MSE_vanilla_all)))
+print('vanilla NUV averaged MSE in dB = {}'.format(MSE_vanilla_dB))
+MSE_vanilla_linear = math.sqrt(np.mean(MSE_vanilla_all))
+print('vanilla NUV averaged RMSE in linear = {}'.format(MSE_vanilla_linear))
